@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Configuration monitorInterval="60">
+    <Appenders>
+        <Console name="STDOUT" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d %p [%c] - &lt;%m&gt;%n"/>
+        </Console>
+        <RollingFile name="RFILE" fileName="${sys:logPath}/signbar.log" append="true"
+                     filePattern="${sys:logPath}/signbar-%d{yyyy-MM-dd-HH}-%i.log">
+            <PatternLayout pattern="%d %p [%c] - %m%n"/>
+            <Policies>
+                <OnStartupTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <Logger name="com.accelerator.signbar" level="info" additivity="true"/>
+        <Root level="warn">
+            <AppenderRef ref="RFILE"/>
+            <AppenderRef ref="STDOUT"/>
+        </Root>
+    </Loggers>
+</Configuration>

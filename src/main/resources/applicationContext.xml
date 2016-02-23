@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <context:component-scan base-package="com.accelerator.signbar"/>
+
+    <bean class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer"
+          p:fileEncoding="UTF-8">
+        <property name="locations">
+            <array value-type="org.springframework.core.io.Resource">
+                <bean class="org.springframework.core.io.FileSystemResource">
+                    <constructor-arg>
+                        <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean"
+                              p:staticMethod="com.accelerator.signbar.Environment.getConfigFileFile"
+                              p:arguments="httpclient.properties"/>
+                    </constructor-arg>
+                </bean>
+                <bean class="org.springframework.core.io.FileSystemResource">
+                    <constructor-arg>
+                        <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean"
+                              p:staticMethod="com.accelerator.signbar.Environment.getConfigFileFile"
+                              p:arguments="mail.properties"/>
+                    </constructor-arg>
+                </bean>
+                <bean class="org.springframework.core.io.FileSystemResource">
+                    <constructor-arg>
+                        <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean"
+                              p:staticMethod="com.accelerator.signbar.Environment.getConfigFileFile"
+                              p:arguments="quartz.properties"/>
+                    </constructor-arg>
+                </bean>
+                <bean class="org.springframework.core.io.FileSystemResource">
+                    <constructor-arg>
+                        <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean"
+                              p:staticMethod="com.accelerator.signbar.Environment.getConfigFileFile"
+                              p:arguments="signbar.properties"/>
+                    </constructor-arg>
+                </bean>
+            </array>
+        </property>
+    </bean>
+
+    <bean id="httpClient" class="com.accelerator.signbar.support.httpclient.HttpClientFactoryBean"
+          p:connectTimeout="${http.connectTimeout}"
+          p:connectionRequestTimeout="${http.connectionRequestTimeout}"
+          p:socketTimeout="${http.socketTimeout}"/>
+
+    <util:constant id="jacksonSerializationInclusion"
+                   static-field="com.fasterxml.jackson.annotation.JsonInclude.Include.NON_EMPTY"/>
+    <bean id="objectMapper" class="org.springframework.http.converter.json.Jackson2ObjectMapperFactoryBean"
+          p:simpleDateFormat="yyyy-MM-dd HH:mm:ss"
+          p:serializationInclusion-ref="jacksonSerializationInclusion"
+          p:indentOutput="true"/>
+
+    <bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl"
+          p:defaultEncoding="UTF-8"
+          p:host="${mail.host}"
+          p:username="${mail.username}"
+          p:password="${mail.password}">
+        <property name="javaMailProperties">
+            <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean"
+                  p:staticMethod="org.springframework.core.io.support.PropertiesLoaderUtils.loadProperties">
+                <property name="arguments">
+                    <array>
+                        <bean class="org.springframework.core.io.FileSystemResource">
+                            <constructor-arg>
+                                <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean"
+                                      p:staticMethod="com.accelerator.signbar.Environment.getConfigFileFile"
+                                      p:arguments="mail.smtp.properties"/>
+                            </constructor-arg>
+                        </bean>
+                    </array>
+                </property>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="freeMarkerConfiguration" class="org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean"
+          p:defaultEncoding="UTF-8"
+          p:templateLoaderPath="classpath:/META-INF/template/ftl"/>
+
+    <bean class="com.accelerator.signbar.util.MailUtils"
+          p:freeMarkerConfiguration-ref="freeMarkerConfiguration"
+          p:javaMailSender-ref="javaMailSender"
+          p:sendFrom="${mail.username}"
+          p:sendTo="${mail.send.to}"/>
+
+    <bean id="signbarJobDetail" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean"
+          p:concurrent="false"
+          p:targetObject-ref="signbarJob"
+          p:targetMethod="startSign"/>
+    <bean id="signbarJobTrigger" class="org.springframework.scheduling.quartz.CronTriggerFactoryBean"
+          p:jobDetail-ref="signbarJobDetail"
+          p:cronExpression="${quartz.cronExpression}"/>
+    <bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+        <property name="triggers">
+            <array value-type="org.quartz.Trigger">
+                <ref bean="signbarJobTrigger"/>
+            </array>
+        </property>
+    </bean>
+
+</beans>
