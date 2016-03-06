@@ -1,0 +1,9 @@
+logs
+*.log
+.idea
+.project
+.classpath
+.settings
+.externalToolBuilders
+target
+signbar.iml
