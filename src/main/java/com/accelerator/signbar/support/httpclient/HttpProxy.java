@@ -4,7 +4,7 @@ public class HttpProxy {
 
     private String host;
 
-    private int port = 8087;
+    private int port;
 
     private String username;
 
