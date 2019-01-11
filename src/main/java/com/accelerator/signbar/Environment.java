@@ -122,10 +122,14 @@ public enum Environment {
 
 
     public static String collectEnvironmentInfo() {
-        Class<Environment> environmentClass = Environment.class;
-        Package environmentPackage = environmentClass.getPackage();
-        String signBarVersion = environmentPackage.getImplementationVersion();
-
+        String signBarVersion;
+        if (CURRENT_ENVIRONMENT == Environment.RELEASE) {
+            Class<Environment> environmentClass = Environment.class;
+            Package environmentPackage = environmentClass.getPackage();
+            signBarVersion = environmentPackage.getImplementationVersion();
+        } else {
+            signBarVersion = CURRENT_ENVIRONMENT.name();
+        }
         Properties properties = System.getProperties();
         Formatter formatter = new Formatter();
         formatter.format("\n******************** Welcome to Signbar ********************\n");
