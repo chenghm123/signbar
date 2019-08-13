@@ -17,7 +17,7 @@
         <spring.version>4.1.8.RELEASE</spring.version>
         <quartz.version>2.2.2</quartz.version>
         <httpclient.version>4.5.1</httpclient.version>
-        <jackson.version>2.9.9</jackson.version>
+        <jackson.version>2.9.9.3</jackson.version>
         <jsoup.version>1.8.3</jsoup.version>
         <junit.version>4.12</junit.version>
         <javax.mail.version>1.4.7</javax.mail.version>
