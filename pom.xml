@@ -19,7 +19,7 @@
         <httpclient.version>4.5.1</httpclient.version>
         <jackson.version>2.10.0</jackson.version>
         <jsoup.version>1.8.3</jsoup.version>
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.1</junit.version>
         <javax.mail.version>1.4.7</javax.mail.version>
 
         <!-- Plugin Versions -->
